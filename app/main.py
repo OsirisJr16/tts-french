@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
-import edge_tts
-import uuid
+from elevenlabs.client import ElevenLabs
+from dotenv import load_dotenv
 import os
+import uuid
+
+load_dotenv()
+
+client = ElevenLabs(
+    api_key=os.getenv("ELEVEN_API_KEY")
+)
+
+FRENCH_VOICE_ID = "MF3mGyEYCl7XYWbV9V6O"
+MODEL_ID = "eleven_multilingual_v2"
 
 app = FastAPI()
 
@@ -15,15 +25,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-MASCULINE_VOICE = "fr-FR-HenriNeural"
-
 @app.post("/generate_speech/")
 async def generate_speech(text: str):
-    
     filename = f"{uuid.uuid4().hex}.mp3"
+    filepath = os.path.join("/tmp", filename)  
 
-    communicate = edge_tts.Communicate(text, voice=MASCULINE_VOICE)
-    await communicate.save(filename)
+    audio_stream = client.text_to_speech.convert_as_stream(
+        text=text,
+        voice_id=FRENCH_VOICE_ID,
+        model_id=MODEL_ID
+    )
 
-    return FileResponse(filename, media_type="audio/mp3", filename="speech.mp3")
+    
+    with open(filepath, "wb") as f:
+        for chunk in audio_stream:
+            if isinstance(chunk, bytes):
+                f.write(chunk)
+
+    return FileResponse(filepath, media_type="audio/mpeg", filename=filename)
