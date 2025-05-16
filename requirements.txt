@@ -1,5 +1,5 @@
+starlette
+elevenlabs
+python-dotenv
 fastapi
 uvicorn
-gTTS
-starlette
-edge-tts
