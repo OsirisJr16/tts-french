@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from elevenlabs.client import ElevenLabs
 from dotenv import load_dotenv
+from pydantic import BaseModel
 import os
 import uuid
 
@@ -25,8 +26,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class TextRequest(BaseModel) : 
+    text : str
+
 @app.post("/generate_speech/")
-async def generate_speech(text: str):
+async def generate_speech(request: TextRequest):
+    text = request.text
     filename = f"{uuid.uuid4().hex}.mp3"
     filepath = os.path.join("/tmp", filename)  
 
