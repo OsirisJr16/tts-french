@@ -20,7 +20,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://teamsupernova.madagascar.webcup.hodi.host"],
+    allow_origins=["https://teamsupernova.madagascar.web-cup.hodi.host"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
